@@ -1,0 +1,25 @@
+@page "/reports"
+@attribute [Authorize(Roles = "Admin,Staff")]
+@inject MiniShopee.Services.CommerceService CommerceService
+
+<h3>Báo cáo hệ thống</h3>
+
+@if (report is null)
+{
+    <p>Đang tải...</p>
+}
+else
+{
+    <ul>
+        <li>Tổng doanh thu: @report.revenue.ToString("N0") VND</li>
+        <li>Số đơn hàng: @report.orderCount</li>
+        <li>Số khách VIP: @report.vipCount</li>
+        <li>Số tài khoản bị khóa: @report.blockedCount</li>
+    </ul>
+}
+
+@code {
+    private dynamic? report;
+
+    protected override async Task OnInitializedAsync() => report = await CommerceService.BuildReportAsync();
+}

@@ -1,0 +1,57 @@
+@page "/profile"
+@attribute [Authorize]
+@using MiniShopee.Models
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Tài khoản của tôi</h3>
+
+@if (user is null)
+{
+    <p>Đang tải...</p>
+}
+else
+{
+    <img src="@user.AvatarUrl" width="100" class="rounded-circle" />
+    <div class="mb-2 mt-2"><b>@user.FullName</b> - @user.Email</div>
+    <div>Điểm uy tín: @user.ReputationPoints</div>
+    <div>Tổng chi tiêu: @user.TotalSpentVnd.ToString("N0") VND</div>
+    <div>VIP: @(isVip ? "Có" : "Chưa")</div>
+
+    <hr />
+    <h5>Cập nhật thông tin</h5>
+    <div class="w-50">
+        <label>Họ tên</label>
+        <input class="form-control" @bind="user.FullName" />
+        <label>Avatar URL</label>
+        <input class="form-control" @bind="user.AvatarUrl" />
+        <button class="btn btn-primary mt-2" @onclick="Save">Lưu</button>
+    </div>
+
+    <form method="post" action="/auth/logout-form" class="mt-3">
+        <button class="btn btn-outline-danger">Đăng xuất</button>
+    </form>
+}
+
+@code {
+    private ApplicationUser? user;
+    private bool isVip;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        user = await UserManager.GetUserAsync(auth.User);
+        if (user is not null)
+        {
+            isVip = await UserManager.IsInRoleAsync(user, "VipCustomer") || user.TotalSpentVnd >= 1_000_000;
+        }
+    }
+
+    private async Task Save()
+    {
+        if (user is not null)
+        {
+            await UserManager.UpdateAsync(user);
+        }
+    }
+}
