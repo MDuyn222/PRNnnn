@@ -1,0 +1,55 @@
+@page "/cart"
+@attribute [Authorize(Roles = "Customer,VipCustomer")]
+@using MiniShopee.Models
+@inject MiniShopee.Services.CartState CartState
+@inject MiniShopee.Services.CommerceService CommerceService
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Giỏ hàng & thanh toán</h3>
+
+<div class="mb-3">
+    <label>Phương thức thanh toán</label>
+    <select class="form-select" @bind="paymentMethod">
+        <option>COD</option>
+        <option>Banking</option>
+        <option>E-Wallet</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label>Voucher</label>
+    <input class="form-control" @bind="voucherCode" placeholder="Nhập mã voucher" />
+</div>
+<button class="btn btn-primary" @onclick="Checkout">Đặt hàng</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p class="mt-3 alert alert-info">@message</p>
+}
+
+@code {
+    private string paymentMethod = "COD";
+    private string voucherCode = string.Empty;
+    private string message = string.Empty;
+
+    private async Task Checkout()
+    {
+        if (!CartState.Items.Any())
+        {
+            message = "Giỏ hàng đang trống.";
+            return;
+        }
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+        if (user is null)
+        {
+            message = "Không tìm thấy tài khoản.";
+            return;
+        }
+
+        var order = await CommerceService.PlaceOrderAsync(user, CartState.Items, paymentMethod, voucherCode);
+        CartState.Clear();
+        message = $"Đặt hàng thành công. Mã đơn #{order.Id}, tổng {order.TotalVnd:N0} VND";
+    }
+}

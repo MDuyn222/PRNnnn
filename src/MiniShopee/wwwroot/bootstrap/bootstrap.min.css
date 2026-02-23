@@ -1,0 +1,5 @@
+/* Placeholder: replace with Bootstrap in real project */
+.btn{padding:.375rem .75rem;border:1px solid #999;background:#f0f0f0;cursor:pointer}
+.form-control,.form-select{padding:.375rem;border:1px solid #ccc;width:100%}
+.table{width:100%;border-collapse:collapse}.table td,.table th{border:1px solid #ddd;padding:.5rem}
+.alert{padding:.75rem;background:#eef}

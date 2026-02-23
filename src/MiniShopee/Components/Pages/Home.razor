@@ -1,0 +1,58 @@
+@page "/"
+@page "/home"
+@using MiniShopee.Models
+@inject MiniShopee.Services.CommerceService CommerceService
+@inject MiniShopee.Services.CartState Cart
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Mini Shopee - Trang Home</h3>
+
+<AuthorizeView>
+    <Authorized>
+        <p class="alert alert-info">Xin chào @context.User.Identity?.Name, chúc bạn mua sắm vui vẻ 🎉</p>
+    </Authorized>
+    <NotAuthorized>
+        <p class="alert alert-info">Bạn có thể xem sản phẩm trước. Để đặt hàng, vui lòng <a href="/login">đăng nhập</a> hoặc <a href="/register">đăng ký</a>.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@if (products.Count == 0)
+{
+    <p>Đang tải sản phẩm...</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        @foreach (var p in products)
+        {
+            <div class="col">
+                <div class="card p-3">
+                    <h5>@p.Name</h5>
+                    <p>@p.Description</p>
+                    <b>@p.PriceVnd.ToString("N0") VND</b>
+                    <small class="d-block">Tồn kho: @p.Stock</small>
+                    <AuthorizeView>
+                        <Authorized>
+                            <button class="btn btn-sm btn-success mt-2" @onclick="() => AddToCart(p.Id)">Thêm vào giỏ</button>
+                        </Authorized>
+                        <NotAuthorized>
+                            <a class="btn btn-sm btn-outline-primary mt-2" href="/login">Đăng nhập để mua</a>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Product> products = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _ = await AuthStateProvider.GetAuthenticationStateAsync();
+        products = await CommerceService.GetProductsAsync();
+    }
+
+    private void AddToCart(int productId) => Cart.Add(productId);
+}

@@ -1,0 +1,42 @@
+@page "/vouchers"
+@attribute [Authorize(Roles = "Admin,Staff")]
+@using MiniShopee.Models
+@inject MiniShopee.Services.CommerceService CommerceService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Quản lý voucher</h3>
+
+<div class="row g-2 mb-3">
+    <div class="col"><input class="form-control" @bind="code" placeholder="Code" /></div>
+    <div class="col"><input class="form-control" type="number" @bind="discount" placeholder="% giảm" /></div>
+    <div class="col"><label><input type="checkbox" @bind="vipOnly" /> Chỉ VIP</label></div>
+    <div class="col"><button class="btn btn-primary" @onclick="CreateVoucher">Tạo</button></div>
+</div>
+
+<ul>
+    @foreach (var v in vouchers)
+    {
+        <li>@v.Code - @v.DiscountPercent% - @(v.VipOnly ? "VIP" : "All") - by @v.CreatedByRole</li>
+    }
+</ul>
+
+@code {
+    private List<Voucher> vouchers = [];
+    private string code = string.Empty;
+    private decimal discount = 5;
+    private bool vipOnly;
+
+    protected override async Task OnInitializedAsync() => vouchers = await CommerceService.GetVouchersAsync(true);
+
+    private async Task CreateVoucher()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        var role = auth.User.IsInRole("Admin") ? "Admin" : "Staff";
+        if (!string.IsNullOrWhiteSpace(code))
+        {
+            await CommerceService.CreateVoucherAsync(code, discount, vipOnly, role);
+            vouchers = await CommerceService.GetVouchersAsync(true);
+            code = string.Empty;
+        }
+    }
+}

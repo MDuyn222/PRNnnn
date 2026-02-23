@@ -1,0 +1,38 @@
+@page "/orders"
+@attribute [Authorize(Roles = "Customer,VipCustomer")]
+@using MiniShopee.Models
+@inject MiniShopee.Services.CommerceService CommerceService
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Trạng thái đơn hàng</h3>
+
+<table class="table">
+    <thead><tr><th>ID</th><th>Ngày</th><th>Trạng thái</th><th>Thanh toán</th><th>Tổng</th></tr></thead>
+    <tbody>
+        @foreach (var order in orders)
+        {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.CreatedAt.ToLocalTime()</td>
+                <td>@order.Status</td>
+                <td>@order.PaymentMethod</td>
+                <td>@order.TotalVnd.ToString("N0")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Order> orders = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+        if (user is not null)
+        {
+            orders = await CommerceService.GetOrdersByUserAsync(user.Id);
+        }
+    }
+}

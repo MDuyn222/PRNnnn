@@ -1,0 +1,9 @@
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                <p class="m-4">Bạn chưa đăng nhập hoặc không có quyền truy cập.</p>
+            </NotAuthorized>
+        </AuthorizeRouteView>
+    </Found>
+</Router>

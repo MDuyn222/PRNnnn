@@ -1,0 +1,28 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
+<h5>Mini Shopee</h5>
+<ul class="nav flex-column">
+    <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+
+    <AuthorizeView>
+        <Authorized>
+            <li class="nav-item"><a class="nav-link" href="/cart">Giỏ hàng & thanh toán</a></li>
+            <li class="nav-item"><a class="nav-link" href="/orders">Đơn hàng của tôi</a></li>
+            <li class="nav-item"><a class="nav-link" href="/profile">Tài khoản</a></li>
+        </Authorized>
+        <NotAuthorized>
+            <li class="nav-item"><a class="nav-link" href="/login">Đăng nhập</a></li>
+            <li class="nav-item"><a class="nav-link" href="/register">Đăng ký</a></li>
+        </NotAuthorized>
+    </AuthorizeView>
+
+    <AuthorizeView Roles="Admin,Staff">
+        <li class="nav-item"><a class="nav-link" href="/vouchers">Quản lý voucher</a></li>
+    </AuthorizeView>
+    <AuthorizeView Roles="Admin">
+        <li class="nav-item"><a class="nav-link" href="/admin/users">Quản lý người dùng</a></li>
+    </AuthorizeView>
+    <AuthorizeView Roles="Admin,Staff">
+        <li class="nav-item"><a class="nav-link" href="/reports">Báo cáo</a></li>
+    </AuthorizeView>
+</ul>

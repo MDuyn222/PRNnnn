@@ -1,0 +1,44 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Admin")]
+@using MiniShopee.Models
+@inject UserManager<ApplicationUser> UserManager
+@inject MiniShopee.Services.UserGovernanceService GovernanceService
+
+<h3>Admin - Quản lý người dùng</h3>
+
+<table class="table">
+    <thead><tr><th>Email</th><th>Chi tiêu</th><th>Uy tín</th><th>Bị report</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+    <tbody>
+        @foreach (var user in users)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.TotalSpentVnd.ToString("N0")</td>
+                <td>@user.ReputationPoints</td>
+                <td>@user.FraudReports</td>
+                <td>@(user.IsBlocked ? "Blocked" : "Active")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" @onclick="() => AssignStaff(user.Id)">Set Staff</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => Report(user.Id)">Report</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<ApplicationUser> users = [];
+
+    protected override void OnInitialized() => users = UserManager.Users.OrderBy(u => u.Email).ToList();
+
+    private async Task AssignStaff(string userId)
+    {
+        await GovernanceService.AssignStaffAsync(userId);
+    }
+
+    private async Task Report(string userId)
+    {
+        await GovernanceService.ReportUserAsync(userId, "Fraud by admin review");
+        users = UserManager.Users.OrderBy(u => u.Email).ToList();
+    }
+}
