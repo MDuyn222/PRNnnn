@@ -55,6 +55,20 @@ public class CommerceService(AppDbContext db, UserGovernanceService governance)
 
     public Task<List<Order>> GetAllOrdersAsync() => db.Orders.Include(o => o.User).OrderByDescending(o => o.CreatedAt).ToListAsync();
 
+
+    public async Task<bool> UpdateOrderStatusAsync(int orderId, string status)
+    {
+        var order = await db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+        if (order is null)
+        {
+            return false;
+        }
+
+        order.Status = status;
+        await db.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<Voucher> CreateVoucherAsync(string code, decimal discountPercent, bool vipOnly, string createdByRole)
     {
         var voucher = new Voucher
