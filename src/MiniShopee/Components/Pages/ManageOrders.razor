@@ -1,0 +1,85 @@
+@page "/manage-orders"
+@attribute [Authorize(Roles = "Admin,Staff")]
+@using MiniShopee.Models
+@inject MiniShopee.Services.CommerceService CommerceService
+
+<h3>Quản lý đơn hàng</h3>
+
+@if (orders.Count == 0)
+{
+    <p>Chưa có đơn hàng.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Khách hàng</th>
+                <th>Ngày tạo</th>
+                <th>Thanh toán</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.User?.Email</td>
+                    <td>@order.CreatedAt.ToLocalTime()</td>
+                    <td>@order.PaymentMethod</td>
+                    <td>@order.TotalVnd.ToString("N0") VND</td>
+                    <td>
+                        <select class="form-select" @bind="statusMap[order.Id]">
+                            <option>Confirmed</option>
+                            <option>Packing</option>
+                            <option>Shipping</option>
+                            <option>Delivered</option>
+                            <option>Cancelled</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" @onclick="() => SaveStatus(order.Id)">Lưu</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p class="alert alert-info">@message</p>
+}
+
+@code {
+    private List<Order> orders = [];
+    private Dictionary<int, string> statusMap = new();
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        orders = await CommerceService.GetAllOrdersAsync();
+        statusMap = orders.ToDictionary(o => o.Id, o => o.Status);
+    }
+
+    private async Task SaveStatus(int orderId)
+    {
+        if (!statusMap.TryGetValue(orderId, out var status))
+        {
+            return;
+        }
+
+        var updated = await CommerceService.UpdateOrderStatusAsync(orderId, status);
+        message = updated ? $"Đã cập nhật đơn #{orderId} -> {status}" : "Không thể cập nhật đơn.";
+        await LoadAsync();
+    }
+}

@@ -16,6 +16,27 @@
     </NotAuthorized>
 </AuthorizeView>
 
+<AuthorizeView>
+    <Authorized>
+        @if (context.User.IsInRole("Admin"))
+        {
+            <p class="alert alert-secondary">Bạn đang ở khu vực Admin: có thể vào trang quản lý người dùng, voucher, báo cáo và quản lý đơn.</p>
+        }
+        else if (context.User.IsInRole("Staff"))
+        {
+            <p class="alert alert-secondary">Bạn đang ở khu vực Staff: có thể quản lý voucher, xử lý đơn hàng và xem báo cáo.</p>
+        }
+        else if (context.User.IsInRole("VipCustomer"))
+        {
+            <p class="alert alert-warning">Bạn là khách hàng VIP 🎖️ - hãy kiểm tra các voucher độc quyền dành cho VIP.</p>
+        }
+        else
+        {
+            <p class="alert alert-light">Khu vực khách hàng: mua áo, theo dõi đơn hàng, cập nhật hồ sơ và tích lũy để lên VIP.</p>
+        }
+    </Authorized>
+</AuthorizeView>
+
 @if (products.Count == 0)
 {
     <p>Đang tải sản phẩm...</p>

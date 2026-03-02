@@ -32,9 +32,11 @@ public static class SeedData
         if (!await context.Products.AnyAsync())
         {
             context.Products.AddRange(
-                new Product { Name = "Áo thun basic", Description = "Chất cotton", PriceVnd = 150_000, Stock = 50 },
-                new Product { Name = "Tai nghe bluetooth", Description = "Pin 20h", PriceVnd = 650_000, Stock = 30 },
-                new Product { Name = "Giày chạy bộ", Description = "Êm và nhẹ", PriceVnd = 920_000, Stock = 20 }
+                new Product { Name = "Áo thun basic", Description = "Cotton 100%, form regular", PriceVnd = 150_000, Stock = 80 },
+                new Product { Name = "Áo polo premium", Description = "Vải cá sấu mềm, thoáng khí", PriceVnd = 320_000, Stock = 60 },
+                new Product { Name = "Áo sơ mi công sở", Description = "Chống nhăn, dễ phối đồ", PriceVnd = 420_000, Stock = 45 },
+                new Product { Name = "Áo hoodie unisex", Description = "Nỉ bông dày, giữ ấm tốt", PriceVnd = 490_000, Stock = 40 },
+                new Product { Name = "Áo khoác bomber", Description = "Phong cách streetwear, nhẹ", PriceVnd = 650_000, Stock = 30 }
             );
         }
 
